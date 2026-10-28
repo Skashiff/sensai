@@ -1,7 +1,7 @@
 export const testimonial = [
   {
     quote:
-      "The AI-powered interview prep was a game-changer. Landed my dream job at a top tech company!",
+      "I want to practice technical questions and understand the reasoning behind each answer.",
     author: "Sarah Chen",
     image: "https://randomuser.me/api/portraits/women/75.jpg",
     role: "Software Engineer",
@@ -9,7 +9,7 @@ export const testimonial = [
   },
   {
     quote:
-      "The industry insights helped me pivot my career successfully. The salary data was spot-on!",
+      "I want to explore possible career paths and identify skills to learn next.",
     author: "Michael Rodriguez",
     image: "https://randomuser.me/api/portraits/men/75.jpg",
     role: "Product Manager",
@@ -17,7 +17,7 @@ export const testimonial = [
   },
   {
     quote:
-      "My resume's ATS score improved significantly. Got more interviews in two weeks than in six months!",
+      "I want to organize my experience into a clear resume and tailor a cover letter to a role.",
     author: "Priya Patel",
     image: "https://randomuser.me/api/portraits/women/74.jpg",
     role: "Marketing Director",

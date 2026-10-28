@@ -1,8 +1,8 @@
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
-const MainLayout = async ({ children }) => {
-//redirect to onboarding
-  
+export default async function MainLayout({ children }) {
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
   return <div className="container mx-auto mt-24 mb-20">{children}</div>;
-};
-
-export default MainLayout;
+}

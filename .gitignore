@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# Share variable names and examples, never real credentials.
+!.env.example
+coverage/

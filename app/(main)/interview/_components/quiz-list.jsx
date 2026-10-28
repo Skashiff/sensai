@@ -43,7 +43,7 @@ export default function QuizList({ assessments }) {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {assessments?.map((assessment, i) => (
+            {assessments?.toReversed().map((assessment, i) => (
               <Card
                 key={assessment.id}
                 className="cursor-pointer hover:bg-muted/50 transition-colors"
@@ -51,7 +51,7 @@ export default function QuizList({ assessments }) {
               >
                 <CardHeader>
                   <CardTitle className="gradient-title text-2xl">
-                    Quiz {i + 1}
+                    Quiz {assessments.length - i}
                   </CardTitle>
                   <CardDescription className="flex justify-between w-full">
                     <div>Score: {assessment.quizScore.toFixed(1)}%</div>
@@ -79,7 +79,7 @@ export default function QuizList({ assessments }) {
       <Dialog open={!!selectedQuiz} onOpenChange={() => setSelectedQuiz(null)}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle></DialogTitle>
+            <DialogTitle>Quiz results</DialogTitle>
           </DialogHeader>
           <QuizResult
             result={selectedQuiz}
@@ -91,3 +91,4 @@ export default function QuizList({ assessments }) {
     </>
   );
 }
+

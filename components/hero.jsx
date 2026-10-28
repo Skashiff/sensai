@@ -35,7 +35,7 @@ const HeroSection = () => {
                         <br />
                         Professional Success
                     </h1>
-                    <p className="mx-auto max-w-[600px] text-muted-foreground md:text-x1">
+                    <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl">
                         Advance Your Career with personalized guidance, interview prep, and 
                         AI-powered tools for job success.
                     </p>
@@ -45,20 +45,20 @@ const HeroSection = () => {
                 <div className="flex justify-center space-x-4">
                     <Link href="/dashboard">
                         <Button size="lg" className="px-8">
-                            Get Stated 
+                            Get Started
                         </Button>
                     </Link>
                 </div>
 
                 {/* first banner (hero image) */}
-                <div className="hero-image-wrapper md: mt-0">
+                <div className="hero-image-wrapper mt-0">
                     <div ref={imageRef} className="hero-image"> 
                         <Image
                         src={"/banner.jpeg"}
                         width={1280}
                         height={720}
-                        alt="Banner CareerGeniie"
-                        className="rounded-1g shadow-2x1 border mx-auto"
+                        alt="Sensai career dashboard preview"
+                        className="rounded-lg shadow-2xl border mx-auto"
                         priority
                         />
                     </div>
@@ -69,3 +69,4 @@ const HeroSection = () => {
 };
 
 export default HeroSection
+

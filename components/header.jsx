@@ -43,7 +43,7 @@ const Header = async () => {
             <Link href="/dashboard">
               <Button variant="outline">
                 <LayoutDashboard className="h-4 w-4"/>
-                <span className="hidden md:block">Industry Instights</span> 
+                <span className="hidden md:block">Industry Insights</span>
               </Button>
             </Link>
 
@@ -89,7 +89,7 @@ const Header = async () => {
             <UserButton appearance={{
               elements:{
                 avatarBox: "w-10 h-10",
-                userButtonPopoverCard: "shadow-x1",
+                userButtonPopoverCard: "shadow-xl",
                 userPreviewMainIdentifier: "font-semibold",
               },
             }}
@@ -104,3 +104,4 @@ const Header = async () => {
 };
 
 export default Header 
+

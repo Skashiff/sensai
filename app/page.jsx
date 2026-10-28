@@ -51,12 +51,12 @@ export default function Home() {
               <p className="text-muted-foreground">Industries Covered</p>
             </div>
             <div className="flex flex-col items-center justify-center space-y-2">
-              <h3 className="text-4xl font-bold">1000+</h3>
-              <p className="text-muted-foreground">Interview Questions</p>
+              <h3 className="text-4xl font-bold">10</h3>
+              <p className="text-muted-foreground">Questions Per Quiz</p>
             </div>
             <div className="flex flex-col items-center justify-center space-y-2">
-              <h3 className="text-4xl font-bold">95%</h3>
-              <p className="text-muted-foreground">Success Rate</p>
+              <h3 className="text-4xl font-bold">3</h3>
+              <p className="text-muted-foreground">Career Tools</p>
             </div>
             <div className="flex flex-col items-center justify-center space-y-2">
               <h3 className="text-4xl font-bold">24/7</h3>
@@ -97,8 +97,9 @@ export default function Home() {
       <section className="w-full py-12 md:py-24 bg-muted/50">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-3xl font-bold text-center mb-12">
-            What Our Users Say
+            Example Career Goals
           </h2>
+          <p className="text-center text-muted-foreground mb-8">Illustrative examples using sample names and photos.</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {testimonial.map((testimonial, index) => (
               <Card key={index} className="bg-background">
@@ -180,8 +181,7 @@ export default function Home() {
               Ready to Accelerate Your Career?
             </h2>
             <p className="mx-auto max-w-[600px] text-primary-foreground/80 md:text-xl">
-              Join thousands of professionals who are advancing their careers
-              with AI-powered guidance.
+              Build your next career step with personalized AI-powered tools.
             </p>
             <Link href="/dashboard" passHref>
               <Button
@@ -198,3 +198,4 @@ export default function Home() {
     </div>
   );
 };
+

@@ -59,6 +59,8 @@ npm run build
 npm audit --omit=dev
 ```
 
+After applying migrations, `npm run check:services` checks database schema metadata and sends one small synthetic Gemini request. Run it explicitly with the intended environment loaded; it does not read user data or replace signed-in browser tests.
+
 The regression suite covers authorization, first-user redirects, invalid/tampered quiz submissions, server-side scoring, retries, AI response validation, request quotas, failed saves, and resume editing after reload. AI and authentication calls in unit/component tests are mocked; passing tests does not prove real API credentials or deployment configuration work.
 
 To run the PostgreSQL integration tests against a disposable database after applying migrations:
@@ -78,6 +80,8 @@ GitHub Actions starts a disposable PostgreSQL service, applies migrations, runs 
 5. Smoke-test sign-up/onboarding, resume save and reload, PDF export, a cover letter, and a complete quiz with the real configured services.
 
 The new migration is additive: it preserves existing users, resumes and assessments, adds nullable structured resume data, stores quiz attempts, and adds hourly AI counters. Existing Markdown-only resumes remain editable in the Markdown tab; their old form fields cannot be reconstructed automatically. Existing assessments remain visible. New quizzes use the secured attempt flow.
+
+On Vercel, `vercel.json` runs migrations before building, so a failed migration prevents the new deployment from becoming ready. The migration uses that deployment's `DATABASE_URL`. Configure a separate Preview database before introducing migrations that could affect a live application's existing schema; a variable shared across Preview and Production points both at the same database.
 
 ## Data and content limitations
 

@@ -20,7 +20,7 @@ try {
     console.log("Database schema: ready");
     stage = "gemini";
     if (!process.env.GEMINI_API_KEY) throw new Error("Missing AI configuration");
-    const model = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+    const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY, httpOptions: { timeout: 45000 } });
     const result = await ai.models.generateContent({
       model,

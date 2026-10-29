@@ -37,7 +37,7 @@ Fill in the variables below in `.env.local`. The app reads `.env.local`, but Pri
 | `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | `/sign-in` for the included sign-in page. |
 | `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | `/sign-up` for the included sign-up page. |
 | `GEMINI_API_KEY` | Server-side Google Gemini API key. |
-| `GEMINI_MODEL` | Supported text model; defaults to `gemini-3.8-flash`. |
+| `GEMINI_MODEL` | Supported text model; defaults to the verified `gemini-3.6-flash`. |
 | `INNGEST_SIGNING_KEY` | Production request verification for Inngest Cloud. |
 | `INNGEST_EVENT_KEY` | Inngest event key, if sending events or connecting to Cloud. |
 
@@ -81,7 +81,7 @@ GitHub Actions starts a disposable PostgreSQL service, applies migrations, runs 
 
 The new migration is additive: it preserves existing users, resumes and assessments, adds nullable structured resume data, stores quiz attempts, and adds hourly AI counters. Existing Markdown-only resumes remain editable in the Markdown tab; their old form fields cannot be reconstructed automatically. Existing assessments remain visible. New quizzes use the secured attempt flow.
 
-On Vercel, `vercel.json` runs migrations and service readiness checks before building, so a failed migration or unavailable database/Gemini service prevents the new deployment from becoming ready. Each deployment makes one small synthetic Gemini request, which uses the configured provider's quota and may be billed. The migration uses that deployment's `DATABASE_URL`. Configure a separate Preview database before introducing migrations that could affect a live application's existing schema; a variable shared across Preview and Production points both at the same database.
+On Vercel, `vercel.json` runs migrations before building, so a failed migration or unavailable database prevents the new deployment from becoming ready. Run `npm run check:services` explicitly when validating a release; keeping the Gemini probe outside the automatic build avoids blocking deploys during a transient provider outage. The probe makes one small synthetic Gemini request, which uses the configured provider's quota and may be billed. The migration uses that deployment's `DATABASE_URL`. Configure a separate Preview database before introducing migrations that could affect a live application's existing schema; a variable shared across Preview and Production points both at the same database.
 
 ## Data and content limitations
 

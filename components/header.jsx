@@ -1,3 +1,5 @@
+"use client";
+
 import { SignedIn, 
   SignedOut, 
   SignInButton, 
@@ -18,11 +20,7 @@ import { DropdownMenu,
   DropdownMenuContent, 
   DropdownMenuItem, 
   DropdownMenuTrigger } from "./ui/dropdown-menu";
-import { checkUser } from "@/lib/checkUser";
-
-
-const Header = async () => {
-  await checkUser ();
+const Header = () => {
   return ( 
     // The header section starts from here...
     <header className="fixed top-0 w-full border-b bg-background/80 backdrop-blur-md z-50 

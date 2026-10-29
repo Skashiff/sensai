@@ -54,8 +54,8 @@ export function EntryForm({ type, entries, onChange }) {
   const handleAdd = handleValidation((data) => {
     const formattedEntry = {
       ...data,
-      startDate: formatDisplayDate(data.startDate),
-      endDate: data.current ? "" : formatDisplayDate(data.endDate),
+      startDate: data.startDate,
+      endDate: data.current ? "" : data.endDate,
     };
 
     onChange([...entries, formattedEntry]);
@@ -95,10 +95,11 @@ export function EntryForm({ type, entries, onChange }) {
       return;
     }
 
-    await improveWithAIFn({
-      current: description,
-      type: type.toLowerCase(), // 'experience', 'education', or 'project'
-    });
+    try {
+      await improveWithAIFn({ current: description, type: type.toLowerCase() });
+    } catch {
+      // The error state is displayed by the effect above.
+    }
   };
 
     return (
@@ -122,8 +123,8 @@ export function EntryForm({ type, entries, onChange }) {
                         <CardContent>
                             <p className="text-sm text-muted-foreground">
                                 {item.current
-                                ? `${item.startDate} - Present`
-                                : `${item.startDate} - ${item.endDate}`}
+                                ? `${formatDisplayDate(item.startDate)} - Present`
+                                : `${formatDisplayDate(item.startDate)} - ${formatDisplayDate(item.endDate)}`}
                             </p>
                             <p className="mt-2 text-sm whitespace-pre-wrap">
                                 {item.description}
@@ -204,7 +205,7 @@ export function EntryForm({ type, entries, onChange }) {
                         <div className="flex items-center space-x-2">
                             <input
                                 type="checkbox"
-                                id="current"
+                                id={`current-${type}`}
                                 {...register("current")}
                                 onChange={(e) => {
                                 setValue("current", e.target.checked);
@@ -213,7 +214,7 @@ export function EntryForm({ type, entries, onChange }) {
                                 }
                                 }}
                             />
-                            <label htmlFor="current">Current {type}</label>
+                            <label htmlFor={`current-${type}`}>Current {type}</label>
                         </div>
 
                         {/* description */}
@@ -275,6 +276,7 @@ export function EntryForm({ type, entries, onChange }) {
                 <Button
                     className="w-full"
                     variant="outline"
+                    type="button"
                     onClick={() => setIsAdding(true)}
                 >
                     <PlusCircle className="h-4 w-4 mr-2" />
@@ -284,3 +286,4 @@ export function EntryForm({ type, entries, onChange }) {
         </div>
     );
 }
+

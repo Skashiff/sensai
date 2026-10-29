@@ -78,7 +78,7 @@ const DashboardView = ({ insights }) => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <Badge variant="outline">Last updated: {lastUpdatedDate}</Badge>
+        <Badge variant="outline">Last generated: {lastUpdatedDate}</Badge>
       </div>
 
       {/* Market Overview Cards */}
@@ -112,7 +112,7 @@ const DashboardView = ({ insights }) => {
             <div className="text-2xl font-bold">
               {insights.growthRate.toFixed(1)}%
             </div>
-            <Progress value={insights.growthRate} className="mt-2" />
+            <Progress value={Math.max(0, Math.min(100, insights.growthRate))} className="mt-2" />
           </CardContent>
         </Card>
 
@@ -161,7 +161,7 @@ const DashboardView = ({ insights }) => {
             Salary Ranges by Role
           </CardTitle>
           <CardDescription>
-            Displaying minimum, median, and maximum salaries (in thousands)
+            Illustrative annual US-market salary estimates in USD (thousands). AI-generated; verify against current local sources.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -247,3 +247,4 @@ const DashboardView = ({ insights }) => {
 };
 
 export default DashboardView;
+

@@ -61,7 +61,7 @@ const OnboardingForm = ({ industries }) => {
           industry: formattedIndustry,
         });
     } catch (error) {
-      console.error("Onboarding error:", error);
+      toast.error(error.message || "Unable to save your profile");
     }
   };
 
@@ -233,3 +233,4 @@ const OnboardingForm = ({ industries }) => {
 };
 
 export default OnboardingForm;
+

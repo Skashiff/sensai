@@ -1,26 +1,7 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-// below routes are protected if user try to directly access any page without signin 
-// it will redirect to the signin page or home page.
-const isProtectedRoute = createRouteMatcher([
-    "/dashboard(.*)",
-    "/resume(.*)",
-    "/interview(.*)",
-    "/ai-cover-letter(.*)",
-    "/onboarding(.*)",
-  ]);
-
-export default clerkMiddleware(async (auth, req)=> {
-  const {userId} = await auth();
-
-  if (!userId && isProtectedRoute(req)) {
-    const { redirectToSignIn } = await auth();
-    return redirectToSignIn();
-  }
-
-  return NextResponse.next();
-});
+// Authenticate requests here; each page/action protects its own resource.
+export default clerkMiddleware();
 
 export const config = {
   matcher: [
@@ -30,3 +11,4 @@ export const config = {
     '/(api|trpc)(.*)',
   ],
 };
+

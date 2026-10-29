@@ -17,11 +17,11 @@ export const features = [
         icon: <LineChart className="w-10 h-10 mb-4 text-primary" />,
         title: "Industry Insights",
         description:
-        "Stay ahead with real-time industry trends, salary data, and market analysis.",
+        "Explore AI-generated estimates of industry trends, salaries, and useful skills.",
     },
     {
         icon: <ScrollText className="w-10 h-10 mb-4 text-primary" />,
         title: "Smart Resume Creation",
-        description: "Generate ATS-optimized resumes with AI assistance.",
+        description: "Build and edit a resume with AI-assisted descriptions and PDF export.",
     },
 ];

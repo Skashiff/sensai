@@ -1,30 +1,25 @@
-// This is the custom hooks for fetching API'S
+"use client";
 
-import { useState } from "react";
-import { toast } from "sonner";
+import { useCallback, useState } from "react";
 
-const useFetch = (cb) => {
+export default function useFetch(callback) {
   const [data, setData] = useState(undefined);
-  const [loading, setLoading] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const fn = async (...args) => {
+  const fn = useCallback(async (...args) => {
     setLoading(true);
     setError(null);
-
     try {
-        const response = await cb(...args);
-        setData(response);
-        setError(null);
-    } catch (error) {
-        setError(error);
-        toast.error(error.message);
-        } finally {
-        setLoading(false);
+      const result = await callback(...args);
+      setData(result);
+      return result;
+    } catch (failure) {
+      const nextError = failure instanceof Error ? failure : new Error("The request failed. Please try again.");
+      setError(nextError);
+      throw nextError;
+    } finally {
+      setLoading(false);
     }
-  };
-
+  }, [callback]);
   return { data, loading, error, fn, setData };
-};
-
-export default useFetch;
+}

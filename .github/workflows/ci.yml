@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: sensai_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sensai_test?schema=public
+      # Syntactically valid placeholder for compilation only; no Clerk account.
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_c2Vuc2FpLmV4YW1wbGUuY29tJA
+      NEXT_TELEMETRY_DISABLED: 1
+      RUN_DB_TESTS: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run db:deploy
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build

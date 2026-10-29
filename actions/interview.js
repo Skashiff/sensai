@@ -1,170 +1,54 @@
-// this API file is build for generatiing the interview quiz and saving the result of the quiz...
-
 "use server";
 
 import { db } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { requireUser } from "@/lib/auth";
+import { generateContent } from "@/lib/ai";
+import { reserveAIRequest } from "@/lib/ai-quota";
+import { quizSchema } from "@/lib/ai-schemas";
+import { quizSubmissionSchema, parseInput } from "@/lib/validation";
+import { gradeQuiz } from "@/lib/quiz";
+import { revalidatePath } from "next/cache";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-// Attempting the quiz... 
 export async function generateQuiz() {
-
-    //check if the user is login or not...
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-    select: {
-      industry: true,
-      skills: true,
-    },
+  const user = await requireUser();
+  if (!user.industry) throw new Error("Complete your profile before starting a quiz");
+  await reserveAIRequest(user.id);
+  const { questions } = await generateContent(`Generate 10 technical interview questions for this candidate profile:
+${JSON.stringify({ industry: user.industry, skills: user.skills })}
+Each question must have four distinct options, one correctAnswer exactly matching an option, and an explanation.`, quizSchema);
+  const attempt = await db.quizAttempt.create({
+    data: { userId: user.id, questions, expiresAt: new Date(Date.now() + 3600000) },
   });
+  // Answers and explanations stay on the server until the quiz is submitted.
+  return { attemptId: attempt.id, questions: questions.map(({ question, options }) => ({ question, options })) };
+}
 
-  if (!user) throw new Error("User not found");
-
-  //prompt fot generating new quiz with AI...
-  const prompt = `
-    Generate 10 technical interview questions for a ${
-      user.industry
-    } professional${
-    user.skills?.length ? ` with expertise in ${user.skills.join(", ")}` : ""
-  }.
-    
-    Each question should be multiple choice with 4 options.
-    
-    Return the response in this JSON format only, no additional text:
-    {
-      "questions": [
-        {
-          "question": "string",
-          "options": ["string", "string", "string", "string"],
-          "correctAnswer": "string",
-          "explanation": "string"
-        }
-      ]
-    }
-  `;
-
-  // AI integiration for the quiz...
-  try {
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
-    const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
-    const quiz = JSON.parse(cleanedText);
-
-    return quiz.questions;
-  } catch (error) {
-    console.error("Error generating quiz:", error);
-    throw new Error("Failed to generate quiz questions");
-  }
-};
-
-//saving the quiz...
-export async function saveQuizResult(questions, answers, score) {
-
-  //check the user authentication first...
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
+export async function saveQuizResult(input) {
+  const user = await requireUser();
+  const { attemptId, answers } = parseInput(quizSubmissionSchema, input);
+  const attempt = await db.quizAttempt.findFirst({
+    where: { id: attemptId, userId: user.id }, include: { assessment: true },
   });
-
-  if (!user) throw new Error("User not found");
-
-  //this is what we are storing in our database...
-  const questionResults = questions.map((q, index) => ({
-    question: q.question,
-    answer: q.correctAnswer,
-    userAnswer: answers[index],
-    isCorrect: q.correctAnswer === answers[index],
-    explanation: q.explanation,
-  }));
-
-  // Get wrong answers...
-  const wrongAnswers = questionResults.filter((q) => !q.isCorrect);
-
-  // Only generate improvement tips if there are wrong answers...
-  let improvementTip = null;
-  if (wrongAnswers.length > 0) {
-    const wrongQuestionsText = wrongAnswers
-      .map(
-        (q) =>
-          `Question: "${q.question}"\nCorrect Answer: "${q.answer}"\nUser Answer: "${q.userAnswer}"`
-      )
-      .join("\n\n");
-
-    const improvementPrompt = `
-      The user got the following ${user.industry} technical interview questions wrong:
-
-      ${wrongQuestionsText}
-
-      Based on these mistakes, provide a concise, specific improvement tip.
-      Focus on the knowledge gaps revealed by these wrong answers.
-      Keep the response under 2 sentences and make it encouraging.
-      Don't explicitly mention the mistakes, instead focus on what to learn/practice.
-    `;
-
-    try {
-      const tipResult = await model.generateContent(improvementPrompt);
-
-      improvementTip = tipResult.response.text().trim();
-      console.log(improvementTip);
-    } catch (error) {
-      console.error("Error generating improvement tip:", error);
-      // Continue without improvement tip if generation fails
-    }
-  }
-
+  if (!attempt) throw new Error("Quiz attempt not found");
+  if (attempt.assessment) return attempt.assessment;
+  if (attempt.expiresAt <= new Date()) throw new Error("This quiz has expired. Please start a new quiz.");
+  const graded = gradeQuiz(attempt.questions, answers);
+  let assessment;
   try {
-    const assessment = await db.assessment.create({
-      data: {
-        userId: user.id,
-        quizScore: score,
-        questions: questionResults,
-        category: "Technical",
-        improvementTip,
-      },
+    assessment = await db.assessment.create({
+      data: { userId: user.id, quizAttemptId: attempt.id, category: "Technical", ...graded },
     });
-
-    return assessment;
   } catch (error) {
-    console.error("Error saving quiz result:", error);
-    throw new Error("Failed to save quiz result");
+    // A repeated or concurrent submission must return the same saved result.
+    if (error.code !== "P2002") throw error;
+    assessment = await db.assessment.findUnique({ where: { quizAttemptId: attempt.id } });
+    if (!assessment || assessment.userId !== user.id) throw new Error("Unable to save quiz results");
   }
-};
+  revalidatePath("/interview");
+  return assessment;
+}
 
-// pushing the saved assesments inside the DB...
 export async function getAssessments() {
-
-  //authorization or authentaction...
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
-
-  try {
-    const assessments = await db.assessment.findMany({
-      where: {
-        userId: user.id,
-      },
-      orderBy: {
-        createdAt: "asc",
-      },
-    });
-
-    return assessments;
-  } catch (error) {
-    console.error("Error fetching assessments:", error);
-    throw new Error("Failed to fetch assessments");
-  }
-};
+  const user = await requireUser();
+  return db.assessment.findMany({ where: { userId: user.id }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] });
+}

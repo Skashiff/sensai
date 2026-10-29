@@ -37,7 +37,7 @@ Fill in the variables below in `.env.local`. The app reads `.env.local`, but Pri
 | `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | `/sign-in` for the included sign-in page. |
 | `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | `/sign-up` for the included sign-up page. |
 | `GEMINI_API_KEY` | Server-side Google Gemini API key. |
-| `GEMINI_MODEL` | Supported text model; defaults to `gemini-3.8-flash`. |
+| `GEMINI_MODEL` | Supported text model; defaults to the verified `gemini-3.6-flash`. |
 | `INNGEST_SIGNING_KEY` | Production request verification for Inngest Cloud. |
 | `INNGEST_EVENT_KEY` | Inngest event key, if sending events or connecting to Cloud. |
 
